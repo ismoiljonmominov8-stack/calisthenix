@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0c0e0b">
+<meta name="theme-color" content="#000000">
+<meta name="color-scheme" content="dark">
 <title>Calisthenix</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap">
@@ -11,19 +12,10 @@
 body{margin:0}
 
 :root{color-scheme:dark;
- --bg:#0c0e0b; --s1:#151913; --s2:#1d221a; --s3:#262c22; --line:#2c3427; --tx:#eef3e7; --mu:#8e9a85;
- --acc:#b4f03c; --acc-ink:#11160a; --acc-soft:rgba(180,240,60,.14); --warn:#ff9f1c; --bad:#ff5d50; --good:#5fd38a;
- --fig-bg:#12160f; --prop:#56604f; --h0:#1f251b; --fig-filter:none; --mb:#3a4335; --nb:#262d23; --pri:#ff3b30; --sec:#f0968c; --h1:#3c5a1a; --h2:#5f8f1f; --h3:#8cc628; --h4:#b4f03c;
+ --bg:#000000; --s1:#0f100f; --s2:#181a18; --s3:#232622; --line:#262a25; --tx:#f1f4ee; --mu:#8c9587;
+ --acc:#b4f03c; --acc-ink:#0b0f05; --acc-soft:rgba(180,240,60,.13); --warn:#ff9f1c; --bad:#ff5d50; --good:#5fd38a;
+ --fig-bg:#080908; --prop:#4d5548; --h0:#161915; --fig-filter:none; --mb:#30362c; --nb:#1d211b; --pri:#ff3b30; --sec:#f0968c; --h1:#3c5a1a; --h2:#5f8f1f; --h3:#8cc628; --h4:#b4f03c;
  --r:16px; --disp:"Barlow Condensed","Arial Narrow",system-ui,sans-serif; --body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;}
-@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){color-scheme:light;
- --bg:#f2f4ee; --s1:#ffffff; --s2:#eceff0; --s3:#e1e6dc; --line:#d6dccf; --tx:#141a10; --mu:#5f6a57;
- --acc:#4f8a00; --acc-ink:#ffffff; --acc-soft:rgba(79,138,0,.12); --fig-bg:#f5f8f0; --prop:#a3ab9b; --fig-filter:invert(.88); --mb:#d2d8cc; --nb:#e4e8df; --pri:#e1251b; --sec:#f3a39a;
- --h0:#e4e9de; --h1:#c6e19a; --h2:#9bcb4f; --h3:#6fa61c; --h4:#4f8a00;}}
-:root[data-theme="light"]{color-scheme:light;
- --bg:#f2f4ee; --s1:#ffffff; --s2:#eceff0; --s3:#e1e6dc; --line:#d6dccf; --tx:#141a10; --mu:#5f6a57;
- --acc:#4f8a00; --acc-ink:#ffffff; --acc-soft:rgba(79,138,0,.12); --fig-bg:#f5f8f0; --prop:#a3ab9b; --fig-filter:invert(.88); --mb:#d2d8cc; --nb:#e4e8df; --pri:#e1251b; --sec:#f3a39a;
- --h0:#e4e9de; --h1:#c6e19a; --h2:#9bcb4f; --h3:#6fa61c; --h4:#4f8a00;}
-:root[data-theme="dark"]{color-scheme:dark}
 *{box-sizing:border-box} [hidden]{display:none!important}
 body{background:var(--bg); color:var(--tx); font:15px/1.5 var(--body); padding-inline:16px; padding-block:0 96px; -webkit-font-smoothing:antialiased}
 body.noscroll{overflow:hidden}
@@ -678,8 +670,9 @@ async function loadAthlete(uid){
 
 /* ===== Sheet (editors) ===== */
 let D=null, sheetKind=null, confirmDel=false;
-function openSheet(kind, draft){ sheetKind=kind; D=draft; confirmDel=false; $('#sheet').hidden=false; document.body.classList.add('noscroll'); renderSheet(); }
-function closeSheet(){ $('#sheet').hidden=true; D=null; sheetKind=null; document.body.classList.remove('noscroll'); }
+function openSheet(kind, draft){ navPush(); sheetKind=kind; D=draft; confirmDel=false; $('#sheet').hidden=false; document.body.classList.add('noscroll'); renderSheet(); }
+function closeSheet(){ navBack(_closeSheet); }
+function _closeSheet(){ $('#sheet').hidden=true; D=null; sheetKind=null; document.body.classList.remove('noscroll'); }
 function renderSheet(){
   const el=$('#sheet-body');
   el.innerHTML = sheetKind==='ex' ? sheetEx() : sheetProg();
@@ -754,7 +747,7 @@ function startWorkout(day){
   W={pid:mp.pid, day:+day, title:dd.title||t('dn')[day-1], items, i:0, start:Date.now(), rest:null, hold:null, figI:-1, quit:false, done:false,
      val:items.map(it=>{ const last=lastFor(it.exId); const base=it.ex.mode==='time'?+it.secs:+it.reps; return Array.from({length:+it.sets},(_,s)=> last?.sets?.[s] && last.sets[s]>base ? last.sets[s] : base); }),
      ok:items.map(it=>Array(+it.sets).fill(false))};
-  $('#wo').hidden=false; document.body.classList.add('noscroll'); renderWO();
+  navPush(); $('#wo').hidden=false; document.body.classList.add('noscroll'); renderWO();
   clearInterval(woTimer); woTimer=setInterval(woTick, 250);
   try{ navigator.wakeLock?.request('screen').then(l=>wakeLock=l).catch(()=>{}); }catch(e){}
   try{ actx ??= new (window.AudioContext||window.webkitAudioContext)(); }catch(e){}
@@ -827,7 +820,24 @@ function renderSummary(){
     <button class="btn pri big" data-act="woclose">${t('close')}</button></div></div>`;
   mountFigs($('#wo'));
 }
-function closeWO(){ clearInterval(woTimer); W=null; $('#wo').hidden=true; $('#wo').innerHTML=''; document.body.classList.remove('noscroll'); try{ wakeLock?.release(); }catch(e){} wakeLock=null; renderMain(); }
+function closeWO(){ navBack(_closeWO); }
+function _closeWO(){ clearInterval(woTimer); W=null; $('#wo').hidden=true; $('#wo').innerHTML=''; document.body.classList.remove('noscroll'); try{ wakeLock?.release(); }catch(e){} wakeLock=null; renderMain(); }
+
+/* ===== Phone back button: step back inside the app ===== */
+let navOK=true, navSkip=0;
+function navPush(){ if(!navOK) return; try{ history.pushState({cx:1}, ''); }catch(e){ navOK=false; } }
+function navBack(fallback){ if(navOK){ try{ history.back(); return; }catch(e){ navOK=false; } } fallback(); }
+window.addEventListener('popstate', ()=>{
+  if(navSkip>0){ navSkip--; return; }
+  if(W){
+    if(W.done){ _closeWO(); return; }
+    if(!W.quit){ W.quit=true; renderWO(); navPush(); return; }   // ask before leaving a workout
+    _closeWO(); return;
+  }
+  if(D){ _closeSheet(); return; }
+  if(S.athlete){ S.athlete=null; renderMain(); window.scrollTo(0,0); return; }
+  if(S.view!=='home'){ S.view='home'; renderMain(); window.scrollTo(0,0); return; }
+});
 
 /* ===== Events ===== */
 document.addEventListener('click', async e=>{
@@ -835,9 +845,15 @@ document.addEventListener('click', async e=>{
   const a=b.dataset.act, v=b.dataset.v;
   if(a==='lang'){ S.lang=v; store('cx-lang',v); if(!S.live) S.names.me=t('you'); renderAll(); if(D) renderSheet(); if(W) { if(W.done) renderSummary(); else { W.figI=-1; renderWO(); } } }
   else if(a==='role'){ S.demoRole=v; S.athlete=null; renderAll(); }
-  else if(a==='view'){ S.view=v; S.athlete=null; renderMain(); window.scrollTo(0,0); }
+  else if(a==='view'){
+    if(v===S.view && !S.athlete) return;
+    if(v==='home'){ navBack(()=>{ S.view='home'; S.athlete=null; renderMain(); }); }
+    else { if(S.view==='home') navPush(); if(S.athlete){ S.athlete=null; navSkip++; navBack(()=>{ navSkip--; }); } S.view=v; renderMain(); }
+    window.scrollTo(0,0); }
   else if(a==='ctab'){ S.ctab=v; renderMain(); }
-  else if(a==='athlete'){ S.athlete=b.dataset.uid||null; renderMain(); window.scrollTo(0,0); }
+  else if(a==='athlete'){ const u=b.dataset.uid||null;
+    if(u){ navPush(); S.athlete=u; renderMain(); } else navBack(()=>{ S.athlete=null; renderMain(); });
+    window.scrollTo(0,0); }
   else if(a==='start') startWorkout(+b.dataset.day);
   else if(a==='starter'){ let n=0; for(const k in STARTER){ if(!S.ex[k]){ if(await put('exercises/'+k, JSON.parse(JSON.stringify(STARTER[k])))) n++; } } toast(t('starterAdded',{n})); }
   else if(a==='newex') openSheet('ex', {name:{uz:'',en:'',ru:''}, cue:{uz:'',en:'',ru:''}, anim:'push-up', mp:[...LIB['push-up'].p], ms:[...LIB['push-up'].s], type:'push', mode:'reps', sets:3, reps:10, secs:30, rest:60});
