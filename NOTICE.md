@@ -1,5 +1,10 @@
 # Third-party notices
 
+## Exercise photos (`ph/*.webp`)
+From **free-exercise-db** by yuhonas — https://github.com/yuhonas/free-exercise-db
+License: **The Unlicense** (public domain dedication) — https://unlicense.org/
+Changes made: two photos per exercise (start and end position) resized and converted to WebP; the app crossfades them.
+
 ## Exercise illustrations (`ex/*.svg`)
 From **Workout Guide** by Bryl Lim — https://github.com/bryllim/workout-guide
 Based on original artwork from **Everkinetic** — https://github.com/everkinetic/data
